@@ -26,40 +26,40 @@ import warnings
 warnings.filterwarnings('ignore')
 def lr(X_train, y_train):
     lr = LR()
-    param_grid = {"C": [math.pow(2, i) for i in range(-8, 11)]}
-    grid_search = GridSearchCV(lr, param_grid, n_jobs=-1, scoring='roc_auc',cv=6)
+    C= np.logspace(-3,2,8)
+    param_grid = dict(C = C)
+    grid_search = GridSearchCV(lr, param_grid, n_jobs=-1, scoring='roc_auc',cv=5)
     grid_search.fit(X_train, y_train)
     lr = LR(penalty = 'l1', C = grid_search.best_params_["C"], solver='saga', class_weight='balanced').fit(X_train, y_train)
     return lr
 
 def svm(X_train, y_train):
-    Cs = np.logspace(-10, 3, 10, base=2)
-    gammas = np.logspace(-10, 3, 10, base=2)
-    param_grid = dict(C=Cs, gamma=gammas)
-    grid = GridSearchCV(svm.SVC(kernel='linear'), param_grid=param_grid, scoring='roc_auc', cv=6).fit(X_train, y_train)
+    param_grid = {
+            'C': [0.0001,0.001, 0.01, 0.1, 1, 10, 100],
+            'gamma' : [0.0001,0.001, 0.01, 0.1, 1, 2, 5, 10, 20],
+        }
+    grid = GridSearchCV(svm.SVC(kernel='linear'), param_grid=param_grid, scoring='roc_auc', cv=5).fit(X_train, y_train)
     C = grid.best_params_['C']
     gamma = grid.best_params_['gamma']
     model_svm = svm.SVC(kernel='linear', C=C, gamma=gamma, probability=True).fit(X_train, y_train)
     return model_svm
 
 def rf(X_train, y_train):
-    model_forest = ExtraTreesClassifier(random_state=13)
-    param_grid = {"n_estimators": [50, 100, 150, 250, 300],
-                  "criterion": ["gini", "entropy"],
-                  "max_features": [1, 3, 4, 5, 6],
-                  "max_depth": [5, 10, 20],
-                  "min_samples_split": [2, 4, 6],
-                  "bootstrap": [True, False]}
-    grid_search = GridSearchCV(model_forest, param_grid, n_jobs=-1, scoring='roc_auc', cv=6)
+    model_forest = ExtraTreesClassifier()
+    param_grid = {"n_estimators": [10,100,150,250, 300,350,400,410,450],
+          "criterion": ["gini", "entropy"],
+          "max_features": [1,3,4,5,6],
+          "max_depth": [1,3,5,7,9, 10],
+          "min_samples_split": [2, 4, 6]
+              }
+    grid_search = GridSearchCV(model_forest, param_grid, n_jobs=-1, scoring='accuracy', cv=5)
     grid_search.fit(X_train, y_train)
     model_forest = ExtraTreesClassifier(n_estimators=grid_search.best_params_["n_estimators"],
-                                        criterion=grid_search.best_params_["criterion"],
-                                        max_features=grid_search.best_params_["max_features"],
-                                        max_depth=grid_search.best_params_["max_depth"],
-                                        min_samples_split=grid_search.best_params_["min_samples_split"],
-                                        bootstrap=grid_search.best_params_["bootstrap"],
-                                        random_state=13
-                                        ).fit(X_train, y_train)
+                                          criterion=grid_search.best_params_["criterion"],
+                                          max_features=grid_search.best_params_["max_features"],
+                                          max_depth=grid_search.best_params_["max_depth"],
+                                          min_samples_split=grid_search.best_params_["min_samples_split"],
+                                          ).fit(X_train, y_train)
     return model_forest
 
 file_path_0 = "path0.csv"
@@ -90,52 +90,52 @@ iii = []
 for i in range(0,len(columns_icc_t2)):
     icc = pg.intraclass_corr(data = data_icc_t2, targets = "target", raters = "reader",ratings = columns_icc_t2[i])
     # print(icc.loc[2][0],icc.loc[2][2])
-    if (icc.loc[0][2] > 0.85):
+    if (icc.loc[1][2] > 0.85):
         index_icc.append(columns_icc_t2[i])
-        iii.append(icc.loc[0][2])
+        iii.append(icc.loc[1][2])
 
 
 for i in range(0,len(columns_icc_ep)):
     icc = pg.intraclass_corr(data = data_icc_ep, targets = "target", raters = "reader",ratings = columns_icc_ep[i])
     # print(icc.loc[2][0],icc.loc[2][2])
-    if (icc.loc[0][2] > 0.85):
+    if (icc.loc[1][2] > 0.85):
         index_icc.append(columns_icc_ep[i])
-        iii.append(icc.loc[0][2])
+        iii.append(icc.loc[1][2])
 
 for i in range(0,len(columns_icc_t1)):
     icc = pg.intraclass_corr(data = data_icc_t1, targets = "target", raters = "reader",ratings = columns_icc_t1[i])
     # print(icc.loc[2][0],icc.loc[2][2])
-    if (icc.loc[0][2] > 0.85):
+    if (icc.loc[1][2] > 0.85):
         index_icc.append(columns_icc_t1[i])
-        iii.append(icc.loc[0][2])
+        iii.append(icc.loc[1][2])
 
 for i in range(0,len(columns_icc_dwi)):
     icc = pg.intraclass_corr(data = data_icc_dwi, targets = "target", raters = "reader",ratings = columns_icc_dwi[i])
     # print(icc.loc[2][0],icc.loc[2][2])
-    if (icc.loc[0][2] > 0.85):
+    if (icc.loc[1][2] > 0.85):
         index_icc.append(columns_icc_dwi[i])
-        iii.append(icc.loc[0][2])
+        iii.append(icc.loc[1][2])
 # #
 for i in range(0,len(columns_icc_adc)):
     icc = pg.intraclass_corr(data = data_icc_adc, targets = "target", raters = "reader",ratings = columns_icc_adc[i])
     # print(icc.loc[2][0],icc.loc[2][2])
-    if (icc.loc[0][2] > 0.85):
+    if (icc.loc[1][2] > 0.85):
         index_icc.append(columns_icc_adc[i])
-        iii.append(icc.loc[0][2])
+        iii.append(icc.loc[1][2])
 
 for i in range(0,len(columns_icc_np)):
     icc = pg.intraclass_corr(data = data_icc_np, targets = "target", raters = "reader",ratings = columns_icc_np[i])
     # print(icc.loc[2][0],icc.loc[2][2])
-    if (icc.loc[0][2] > 0.85):
+    if (icc.loc[1][2] > 0.85):
         index_icc.append(columns_icc_np[i])
-        iii.append(icc.loc[0][2])
+        iii.append(icc.loc[1][2])
 #
 for i in range(0,len(columns_icc_cp)):
     icc = pg.intraclass_corr(data = data_icc_cp, targets = "target", raters = "reader",ratings = columns_icc_cp[i])
     # print(icc.loc[2][0],icc.loc[2][2])
-    if (icc.loc[0][2] > 0.85):
+    if (icc.loc[1][2] > 0.85):
         index_icc.append(columns_icc_cp[i])
-        iii.append(icc.loc[0][2])
+        iii.append(icc.loc[1][2])
 iii.sort()
 
 data_0 = pd.read_csv(file_path_0)
@@ -179,7 +179,7 @@ X_testouter = X_testouter[index_icc]
 
 
 alphas = np.logspace(-3,3,50)#(-3,1,50)
-model_lasso = LassoCV(alphas = alphas, cv = 6, max_iter = 100000).fit(X_train,y_train)
+model_lasso = LassoCV(alphas = alphas, cv = 5, max_iter = 100000).fit(X_train,y_train)
 
 #
 coef = pd.Series(model_lasso.coef_, index = X_train.columns)
