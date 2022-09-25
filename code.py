@@ -45,8 +45,8 @@ def svm(X_train, y_train):
     return model_svm
 
 def rf(X_train, y_train):
-    model_forest = ExtraTreesClassifier()
-    param_grid = {"n_estimators": [10,100,150,250, 300,350,400,410,450],
+    model_forest = RandomForestClassifier()
+    param_grid = {"n_estimators": [10,100,150,250, 300,350,400,450],
           "criterion": ["gini", "entropy"],
           "max_features": [1,3,4,5,6],
           "max_depth": [1,3,5,7,9, 10],
