@@ -30,7 +30,7 @@ def lr(X_train, y_train):
     param_grid = dict(C = C)
     grid_search = GridSearchCV(lr, param_grid, n_jobs=-1, scoring='roc_auc',cv=5)
     grid_search.fit(X_train, y_train)
-    lr = LR(penalty = 'l1', C = grid_search.best_params_["C"], solver='saga', class_weight='balanced').fit(X_train, y_train)
+    lr = LR(C = grid_search.best_params_["C"], solver='saga', class_weight='balanced').fit(X_train, y_train)
     return lr
 
 def svm(X_train, y_train):
